@@ -9,6 +9,8 @@ export const API_CONFIG = new InjectionToken('ApiConfigToken');
   ],
   providers: [
     { provide: API_CONFIG, useValue: 'http://localhost:3000/' } // 注入一个常量存放共同域名
+    // { provide: API_CONFIG, useValue: 'https://music.jeeas.cn/v1/' } // 注入一个常量存放共同域名
+
   ]
 })
 export class ServicesModule { }

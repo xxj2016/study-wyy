@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HomeService } from 'src/app/services/home.service';
-import { Banner, HotTag } from 'src/app/services/data-types/common.types';
+import { Banner, HotTag, SongSheet } from 'src/app/services/data-types/common.types';
 import { NzCarouselComponent } from 'ng-zorro-antd';
 
 @Component({
@@ -12,6 +12,7 @@ export class HomeComponent implements OnInit {
   @ViewChild(NzCarouselComponent, { static: true }) nzCarousel: NzCarouselComponent;
   banners: Banner[];
   tags: HotTag[];
+  sheets: SongSheet[];
   carouselActiveIndex = 0;
   constructor(private homeService: HomeService) {
 
@@ -36,8 +37,9 @@ export class HomeComponent implements OnInit {
   }
 
   private getPersonalizedSheetList() {
-    this.homeService.getPersonalizedSheetList().subscribe(result => {
-      console.table(result);
+    this.homeService.getPersonalizedSheetList().subscribe(sheets => {
+      console.dir(sheets);
+      this.sheets = sheets;
     });
   }
 
@@ -52,7 +54,7 @@ export class HomeComponent implements OnInit {
   * by JetXu on 2019/12/04 10:27
   */
   onBeforeChange({ to }) {
-    console.log('OnBeforeChange: ' + to);
+    // console.log('OnBeforeChange: ' + to);
     this.carouselActiveIndex = to;
   }
 
@@ -64,7 +66,7 @@ export class HomeComponent implements OnInit {
   * by JetXu on 2019/12/04 10:27
   */
   onChangeSlide(type: string) {
-    console.log(type);
+    // console.log(type);
     this.nzCarousel[type]();
   }
 
