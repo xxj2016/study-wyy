@@ -19,3 +19,12 @@ export interface SongSheet {
   picUrl: string;
   playCount: number;
 }
+
+// 歌手分类列表的数据结构
+export interface Singer {
+  id: number;
+  name: string;
+  picUrl: string;
+  albumSize: number;
+  musicSize: number;
+}

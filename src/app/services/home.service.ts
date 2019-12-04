@@ -22,12 +22,18 @@ export class HomeService {
   // 歌单分类标签
   getHotTags(): Observable<HotTag[]> {
     return this.http.get(`${this.uri}playlist/hot`)
-      .pipe(map((res: {tags: HotTag[]}) => res.tags.sort((x:HotTag, y: HotTag) => x.position - y.position).slice(0, 5)));
+      .pipe(map((res: {tags: HotTag[]}) => res.tags.sort((x: HotTag, y: HotTag) => x.position - y.position).slice(0, 5)));
   }
 
   // 推荐歌单
   getPersonalizedSheetList(): Observable<SongSheet[]> {
     return this.http.get(`${this.uri}personalized`)
+      .pipe(map((res: {result: SongSheet[]}) => res.result.slice(0, 16)));
+  }
+
+  // 歌手分类列表
+  getArtistList(): Observable<SongSheet[]> {
+    return this.http.get(`${this.uri}artist/list?cat=5001`)
       .pipe(map((res: {result: SongSheet[]}) => res.result.slice(0, 16)));
   }
 }

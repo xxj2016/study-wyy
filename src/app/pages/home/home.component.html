@@ -37,7 +37,28 @@
       </div>
 
 
-      <div class="right"></div>
+      <div class="right">
+        <h2>登录</h2>
+        <div class="settled-singer">
+          <div class="tit">
+            <b>入驻歌手</b>
+            <span>查看全部
+              <i nz-icon nzType="right" nzTheme="outline"></i>
+            </span>
+          </div>
+          <div class="list">
+            <div class="card" *ngFor="let item of artists">
+              <div class="pic">
+                <img [src]="item.picUrl" alt="">
+              </div>
+              <div class="txt">
+                <b class="ellipsis">{{item.name}}</b>
+                <span>专辑数: {{item.albumSize}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
