@@ -36,7 +36,7 @@ export class SheetService {
   /*
   * playSheet: 播放歌曲/歌单
   *   @params
-  *      id [number] 歌曲的id
+  *      id [number] 歌曲 的id
   *   @return
   * by JetXu on 2019/12/05 16:22
   */

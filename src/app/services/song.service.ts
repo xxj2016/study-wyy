@@ -36,7 +36,7 @@ export class SongService {
   */
   getSongList(songs: Song | Song[]): Observable<Song[]> {
     const songArr = Array.isArray(songs) ? songs.slice() : [songs];
-    const ids = songArr.map(item => item.id).join(','); // 筛选出歌曲列表里面的id,并拼接成字符串
+    const ids = songArr.map(item => item.id).join(','); // 筛选出歌曲 列表里面的id,并拼接成字符串
     console.log('songs', songs);
     console.log('ids', ids);
 

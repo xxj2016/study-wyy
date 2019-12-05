@@ -19,11 +19,11 @@
       </div>
 
       <div class="play">
-        <div class="words clearfix" [hidden]="true">
-          <p class="ellipsis">歌名</p>
-          <ul class="songs clearfix">
+        <div class="words clearfix hide">
+          <p class="ellipsis margin-bottom-none">歌名</p>
+          <ul class="songs clearfix margin-bottom-none">
             <li>
-              <a href="">歌手1</a>  /
+              <a href="">歌手1</a> /
               <span></span>
             </li>
             <li>
@@ -34,7 +34,9 @@
         </div>
         <div class="bar">
           <div class="slider-wrap">
-            <div>进度条</div>
+            <div>
+              <app-wy-slider></app-wy-slider>
+            </div>
           </div>
           <span class="time">
             <em>02:20</em> / 20:20
