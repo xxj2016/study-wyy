@@ -31,9 +31,4 @@ export class HomeService {
       .pipe(map((res: {result: SongSheet[]}) => res.result.slice(0, 16)));
   }
 
-  // 歌手分类列表
-  getArtistList(): Observable<SongSheet[]> {
-    return this.http.get(`${this.uri}artist/list?cat=5001`)
-      .pipe(map((res: {result: SongSheet[]}) => res.result.slice(0, 16)));
-  }
 }
