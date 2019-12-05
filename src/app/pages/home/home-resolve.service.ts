@@ -15,13 +15,13 @@ export class HomeResolveService implements Resolve<HomeDataType> {
     private singleService: SingleService,
   ) { }
   resolve(): Observable<HomeDataType> {
-    return forkJoin([
+    return forkJoin([ // forkJoin相当于promise的promiseAll
       this.homeService.getBanner(),
       this.homeService.getHotTags(),
       this.homeService.getPersonalizedSheetList(),
       this.singleService.getArtistList()
     ])
-      .pipe(delay(5000)) // 为了验证resolve是否生效
+      .pipe(delay(800)) // 为了验证resolve是否生效
       .pipe(take(1));
   }
 }
