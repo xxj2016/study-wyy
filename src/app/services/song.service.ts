@@ -40,11 +40,13 @@ export class SongService {
     console.log('songs', songs);
     console.log('ids', ids);
 
-    return Observable.create(observer => { // Observable.create创建一个流
-      this.getSongUrl(ids).subscribe(urls => { // 获取歌曲的播放地址信息
-        observer.next(this.generateSongList(songArr, urls)); // 将歌曲数组，播放地址信息进行拼接所需要的结果数组(observer.next让外面去订阅我们这个流的地方可以拿到数据)
-      });
-    });
+    // return Observable.create(observer => { // Observable.create创建一个流
+    //   this.getSongUrl(ids).subscribe(urls => { // 获取歌曲的播放地址信息
+    //     observer.next(this.generateSongList(songArr, urls)); // 将歌曲数组，播放地址信息进行拼接所需要的结果数组(observer.next让外面去订阅我们这个流的地方可以拿到数据)
+    //   });
+    // });
+
+    return this.getSongUrl(ids).pipe(map(urls => this.generateSongList(songArr, urls)));
   }
 
   /*
