@@ -15,19 +15,19 @@ const defaultParams: SingerParams = {
   offset: 0,
   limit: 5,
   cat: '5001'
-}
+};
 
 @Injectable({
   providedIn: ServicesModule
 })
-export class SingleService {
+export class SingerService {
 
   constructor(private http: HttpClient, @Inject(API_CONFIG) private uri: string) { }
 
   // 入驻歌手列表
   getArtistList(args: SingerParams = defaultParams): Observable<Singer[]> {
-    const params = new HttpParams({fromString: queryString.stringify(args)});
+    const params = new HttpParams({ fromString: queryString.stringify(args) });
     return this.http.get(`${this.uri}artist/list`, { params })
-      .pipe(map((res: {artists: Singer[]}) => res.artists));
+      .pipe(map((res: { artists: Singer[] }) => res.artists));
   }
 }

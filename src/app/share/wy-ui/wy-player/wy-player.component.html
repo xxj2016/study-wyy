@@ -20,10 +20,10 @@
 
       <div class="play">
         <div class="words clearfix" [hidden]="true">
-          <p>歌名</p>
+          <p class="ellipsis">歌名</p>
           <ul class="songs clearfix">
             <li>
-              <a href="">歌手1 /</a>
+              <a href="">歌手1</a>  /
               <span></span>
             </li>
             <li>
@@ -33,9 +33,11 @@
           </ul>
         </div>
         <div class="bar">
-          <div class="slider-wrap">进度条</div>
+          <div class="slider-wrap">
+            <div>进度条</div>
+          </div>
           <span class="time">
-            <em>02:20:00</em> / 20:20:20
+            <em>02:20</em> / 20:20
           </span>
         </div>
       </div>
@@ -47,7 +49,7 @@
 
       <div class="ctrl">
         <i class="volume" title="音量"></i>
-        <i title="模式"></i>
+        <i class="loop" title="循环"></i>
         <p class="open">
           <span></span>
         </p>

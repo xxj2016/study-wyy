@@ -3,7 +3,7 @@ import { Observable, forkJoin } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Banner, Singer, HotTag, SongSheet } from 'src/app/services/data-types/common.types';
 import { HomeService } from 'src/app/services/home.service';
-import { SingleService } from 'src/app/services/single.service';
+import { SingerService } from 'src/app/services/singer.service';
 import { take, delay } from 'rxjs/internal/operators';
 
 type HomeDataType = [Banner[], HotTag[], SongSheet[], Singer[]]; // 顺序要跟resolve的Observale的类型顺序一致
@@ -12,7 +12,7 @@ type HomeDataType = [Banner[], HotTag[], SongSheet[], Singer[]]; // 顺序要跟
 export class HomeResolveService implements Resolve<HomeDataType> {
   constructor(
     private homeService: HomeService,
-    private singleService: SingleService,
+    private singleService: SingerService,
   ) { }
   resolve(): Observable<HomeDataType> {
     return forkJoin([ // forkJoin相当于promise的promiseAll

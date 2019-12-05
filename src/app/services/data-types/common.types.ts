@@ -18,6 +18,7 @@ export interface SongSheet {
   name: string;
   picUrl: string;
   playCount: number;
+  tracks: Song[];
 }
 
 // 歌手分类列表的数据结构
@@ -27,4 +28,22 @@ export interface Singer {
   picUrl: string;
   albumSize: number;
   musicSize: number;
+}
+
+
+// 歌单的数据结构
+export interface Song {
+  id: number;
+  name: string;
+  url: number;
+  ar: Singer[];
+  al: { id: number; name: string; picUrl: string };
+  dt: number;
+}
+
+
+// 播放地址的数据结构
+export interface SongUrl {
+  id: number;
+  url: number;
 }

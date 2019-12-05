@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { SongSheet } from 'src/app/services/data-types/common.types';
 
 @Component({
@@ -9,11 +9,17 @@ import { SongSheet } from 'src/app/services/data-types/common.types';
 })
 export class SingleSheetComponent implements OnInit {
   @Input() sheet: SongSheet;
+  // tslint:disable-next-line: no-output-on-prefix
+  @Output() onPlay = new EventEmitter<number>();
   constructor() {
   }
 
   ngOnInit() {
 
+  }
+
+  playSheet(id: number) {
+    this.onPlay.emit(id);
   }
 
 }
