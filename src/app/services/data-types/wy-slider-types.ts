@@ -17,3 +17,5 @@ export interface SliderEventObserverConfig {
     moveResolved$?: Observable<number>;
     end$?: Observable<Event>;
 }
+
+export type SliderValue  = number | null;
