@@ -8,6 +8,7 @@ import { SliderValue } from 'src/app/services/data-types/wy-slider-types';
 })
 export class WyPlayerComponent implements OnInit {
   sliderValue: SliderValue = 30;
+  bufferOffset: SliderValue = 70;
   constructor() { }
 
   ngOnInit() {

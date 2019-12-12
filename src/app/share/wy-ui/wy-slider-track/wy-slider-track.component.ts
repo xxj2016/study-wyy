@@ -8,6 +8,7 @@ import { WySliderStyle } from 'src/app/services/data-types/wy-slider-types';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WySliderTrackComponent implements OnInit {
+  @Input() wyBuffer: boolean;
   @Input() wyVertical = false;
   @Input() wyLength: number;
   style: WySliderStyle = {};
