@@ -106,7 +106,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
         );
 
       source.end$ = fromEvent(this.doc, end);
-      source.moveResolved$ = fromEvent(this.sliderDom, move)
+      source.moveResolved$ = fromEvent(this.doc, move)
         .pipe(
           filter(filterFunc),
           tap(SliderEvent), // 类似console.log, 可以做一个中间的调试
