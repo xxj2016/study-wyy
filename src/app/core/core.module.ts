@@ -10,7 +10,6 @@ import { registerLocaleData } from '@angular/common';
 import zh from '@angular/common/locales/zh';
 import { NZ_I18N, zh_CN } from 'ng-zorro-antd';
 import { AppStoreModule } from '../store';
-
 registerLocaleData(zh);
 
 @NgModule({
@@ -34,7 +33,7 @@ registerLocaleData(zh);
 export class CoreModule {
   constructor(@SkipSelf() @Optional() parentModule: CoreModule) {
     if (parentModule) {
-      throw new Error('CoreModule 只能被AppModule引入');
+      throw new Error('CoreModule 只能被appModule引入');
     }
   }
 }

@@ -11,13 +11,13 @@ import { WyUiModule } from './wy-ui/wy-ui.module';
     CommonModule,
     NgZorroAntdModule,
     FormsModule,
-    WyUiModule,
+    WyUiModule
   ],
   exports: [
     CommonModule,
     NgZorroAntdModule,
     FormsModule,
-    WyUiModule,
+    WyUiModule
   ]
 })
 export class ShareModule { }

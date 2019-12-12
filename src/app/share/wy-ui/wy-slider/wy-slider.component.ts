@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ElementRef, ViewChild, Input, Inject, ChangeDetectorRef, OnDestroy, forwardRef } from '@angular/core';
 import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
-import { SliderEventObserverConfig, SliderValue } from 'src/app/services/data-types/wy-slider-types';
+import { SliderEventObserverConfig, SliderValue } from './wy-slider-types';
 import { DOCUMENT } from '@angular/common';
 import { sliderEvent, getElementOffset } from './wy-slider-helper';
 import { inArray } from 'src/app/utils/array';
@@ -14,118 +14,90 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   styleUrls: ['./wy-slider.component.less'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{  // 注入一个token,才能实现 [(ngModel)]
+  providers: [{
     provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => WySliderComponent), // 允许我们引用尚未定义的类
+    useExisting: forwardRef(() => WySliderComponent),
     multi: true
   }]
 })
-export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValueAccessor {
-  
-  @ViewChild('wySlider', { static: true }) private wySlider: ElementRef;
+export class WySliderComponent implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() wyVertical = false;
-  @Input() wyMin: number = 0;
-  @Input() wyMax: number = 100;
+  @Input() wyMin = 0;
+  @Input() wyMax = 100;
   @Input() bufferOffset: SliderValue = 0;
 
 
   private sliderDom: HTMLDivElement;
+  @ViewChild('wySlider', { static: true }) private wySlider: ElementRef;
 
-  private dragStart$: Observable<number>; // 定义一个订阅
+  private dragStart$: Observable<number>;
   private dragMove$: Observable<number>;
   private dragEnd$: Observable<Event>;
-
-  private dragStart_: Subscription | null; // 取消订阅
+  private dragStart_: Subscription | null;
   private dragMove_: Subscription | null;
-  private dragEnd_: Subscription | null; 
+  private dragEnd_: Subscription | null;
 
   private isDragging = false;
 
   value: SliderValue = null;
   offset: SliderValue = null;
-  constructor(
-    @Inject(DOCUMENT) private doc: Document,
-    private cdr: ChangeDetectorRef
-  ) { }
 
-  // 思路：
-  // 水平：
-  //   track: width
-  //   handle: left
-  // 垂直：
-  //   track: height
-  //   handle: bottom
 
-  // pc:
-  //   mousedown mousemove mouseup
-  // phone:
-  //   touchstart touchmove touchend
-
-  // position => val
-  // position / 滑块组件总长 === (val - min) / (max - min)
+  constructor(@Inject(DOCUMENT) private doc: Document, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.sliderDom = this.wySlider.nativeElement;
-    console.log('sliderDom el: ' + this.sliderDom);
     this.createDraggingObservables();
     this.subscribeDrag(['start']);
   }
 
-  ngOnDestroy(): void {
-    //Called once, before the instance is destroyed.
-    //Add 'implements OnDestroy' to the class.
-    this.unsubscribeDrag();
-  }
-
-  createDraggingObservables() {
+  private createDraggingObservables() {
     const orientField = this.wyVertical ? 'pageY' : 'pageX';
-    // 用一个对象来定义PC的鼠标事件
     const mouse: SliderEventObserverConfig = {
-      start: 'mousedown', // 开始
-      move: 'mousemove', // 移动时
-      end: 'mouseup', // 结束
-      filter: (e: MouseEvent) => e instanceof MouseEvent, // 筛选事件类型（判断是PC还是手机）
-      pluckKey: [orientField] // 区分是垂直还是水平的坐标
+      start: 'mousedown',
+      move: 'mousemove',
+      end: 'mouseup',
+      filter: (e: MouseEvent) => e instanceof MouseEvent,
+      pluckKey: [orientField]
     };
-    // 用一个对象来定义手机端的鼠标事件
+
     const touch: SliderEventObserverConfig = {
       start: 'touchstart',
       move: 'touchmove',
-      end: 'touchup',
-      filter: (e: MouseEvent) => e instanceof TouchEvent,
+      end: 'touchend',
+      filter: (e: TouchEvent) => e instanceof TouchEvent,
       pluckKey: ['touches', '0', orientField]
     };
 
-    // 绑定PC/移动端的事件
+
     [mouse, touch].forEach(source => {
-      const { start, move, end, filter: filterFunc, pluckKey } = source;
+      const { start, move, end, filter: filerFunc, pluckKey } = source;
+
       source.startPlucked$ = fromEvent(this.sliderDom, start)
-        .pipe(
-          filter(filterFunc),
-          tap(sliderEvent), // 类似console.log, 可以做一个中间的调试
-          pluck(...pluckKey),
-          map((position: number) => this.findClosestValue(position))
-        );
+      .pipe(
+        filter(filerFunc),
+        tap(sliderEvent),
+        pluck(...pluckKey),
+        map((position: number) => this.findClosestValue(position))
+      );
 
       source.end$ = fromEvent(this.doc, end);
-      source.moveResolved$ = fromEvent(this.doc, move)
-        .pipe(
-          filter(filterFunc),
-          tap(sliderEvent), // 类似console.log, 可以做一个中间的调试
-          pluck(...pluckKey),
-          distinctUntilChanged(), // 防止触发频繁
-          map((position: number) => this.findClosestValue(position)),
-          takeUntil(source.end$)
-        );
+      source.moveResolved$ = fromEvent(this.doc, move).pipe(
+        filter(filerFunc),
+        tap(sliderEvent),
+        pluck(...pluckKey),
+        distinctUntilChanged(),
+        map((position: number) => this.findClosestValue(position)),
+        takeUntil(source.end$)
+      );
     });
 
-    // 订阅三个合并事件
     this.dragStart$ = merge(mouse.startPlucked$, touch.startPlucked$);
     this.dragMove$ = merge(mouse.moveResolved$, touch.moveResolved$);
     this.dragEnd$ = merge(mouse.end$, touch.end$);
   }
 
-  // 订阅
+
   private subscribeDrag(events: string[] = ['start', 'move', 'end']) {
     if (inArray(events, 'start') && this.dragStart$ && !this.dragStart_) {
       this.dragStart_ = this.dragStart$.subscribe(this.onDragStart.bind(this));
@@ -138,7 +110,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
     }
   }
 
-  // 取消订阅
+
   private unsubscribeDrag(events: string[] = ['start', 'move', 'end']) {
     if (inArray(events, 'start') && this.dragStart_) {
       this.dragStart_.unsubscribe();
@@ -154,116 +126,123 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
     }
   }
 
-  // 开始拖动(点击)
   private onDragStart(value: number) {
-    console.log('val:' + value);
-    this.toggleDragMoving(true); // 绑定或者解绑事件
+    this.toggleDragMoving(true);
     this.setValue(value);
-  }
 
-  // 拖动中
+  }
   private onDragMove(value: number) {
     if (this.isDragging) {
       this.setValue(value);
       this.cdr.markForCheck();
     }
   }
-
   private onDragEnd() {
-    this.toggleDragMoving(false); // 绑定或者解绑事件
+    this.toggleDragMoving(false);
     this.cdr.markForCheck();
   }
 
+
   private setValue(value: SliderValue, needCheck = false) {
     if (needCheck) {
-      if(this.isDragging) return;
-      this.value = this.formateValue(value);
-      this.updateTrackAndHandles(); // 更新Dom的样子
-    }else  if (!this.valuesEqual(this.value, value)) {
+      if (this.isDragging) return;
+      this.value = this.formatValue(value);
+      this.updateTrackAndHandles();
+    } else if (!this.valuesEqual(this.value, value)) {
       this.value = value;
-      this.updateTrackAndHandles(); // 更新Dom的样子
+      this.updateTrackAndHandles();
       this.onValueChange(this.value);
     }
+    
   }
 
-  private formateValue(value: SliderValue): SliderValue {
+
+  private formatValue(value: SliderValue): SliderValue {
     let res = value;
-    if(this.assertValueValid(value)) {
+    if (this.assertValueValid(value)) {
       res = this.wyMin;
-    } else {
+    }else {
       res = limitNumberInRange(value, this.wyMin, this.wyMax);
     }
     return res;
   }
 
-  // 判断是否为NAN
+
+  // 判断是否是NAN
   private assertValueValid(value: SliderValue): boolean {
     return isNaN(typeof value !== 'number' ? parseFloat(value) : value);
   }
 
-  // 判断两个值是否相等
-  private valuesEqual (valA: SliderValue, valB: SliderValue): boolean {
+  private valuesEqual(valA: SliderValue, valB: SliderValue): boolean {
     if (typeof valA !== typeof valB) {
       return false;
     }
     return valA === valB;
   }
 
+
   private updateTrackAndHandles() {
     this.offset = this.getValueToOffset(this.value);
     this.cdr.markForCheck();
   }
 
+
   private getValueToOffset(value: SliderValue): SliderValue {
-    return getPercent(value, this.wyMin, this.wyMax);
+    return getPercent(this.wyMin, this.wyMax, value);
   }
 
   private toggleDragMoving(movable: boolean) {
     this.isDragging = movable;
-
     if (movable) {
       this.subscribeDrag(['move', 'end']);
-    } else {
+    }else {
       this.unsubscribeDrag(['move', 'end']);
     }
   }
 
-  findClosestValue(position: number): number {
+
+  private findClosestValue(position: number): number {
     // 获取滑块总长
     const sliderLength = this.getSliderLength();
 
-    // 滑块(左，上)端点的位置
+    // 滑块(左, 上)端点位置
     const sliderStart = this.getSliderStartPosition();
-    console.log(sliderLength);
-    console.log(sliderLength);
+
     // 滑块当前位置 / 滑块总长
     const ratio = limitNumberInRange((position - sliderStart) / sliderLength, 0, 1);
     const ratioTrue = this.wyVertical ? 1 - ratio : ratio;
-    console.log(ratioTrue * (this.wyMax - this.wyMin) + this.wyMin);
-
     return ratioTrue * (this.wyMax - this.wyMin) + this.wyMin;
   }
 
-  getSliderLength(): number {
+
+  private getSliderLength(): number {
     return this.wyVertical ? this.sliderDom.clientHeight : this.sliderDom.clientWidth;
   }
 
-  getSliderStartPosition(): number {
+  private getSliderStartPosition(): number {
     const offset = getElementOffset(this.sliderDom);
     return this.wyVertical ? offset.top : offset.left;
   }
 
-  private onValueChange(value: SliderValue): void {}
 
-  private onTouched(): void {}
+  private onValueChange(value: SliderValue): void {};
+  private onTouched(): void {};
 
   writeValue(value: SliderValue): void {
-    this.setValue(value, true); // 读取值，赋值
+    this.setValue(value, true);
   }
-  registerOnChange(fn: any): void {
+
+
+  registerOnChange(fn: (value: SliderValue) => void): void {
     this.onValueChange = fn;
   }
+
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
+  }
+
+
+  ngOnDestroy(): void {
+    this.unsubscribeDrag();
   }
 }

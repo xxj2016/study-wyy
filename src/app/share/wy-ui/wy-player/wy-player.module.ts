@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     FormsModule,
-    WySliderModule,
+    WySliderModule
   ],
   exports: [WyPlayerComponent]
 })
