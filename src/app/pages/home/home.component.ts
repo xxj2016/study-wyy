@@ -5,6 +5,9 @@ import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/internal/operators';
 import { SheetService } from 'src/app/services/sheet.service';
 import { SongService } from 'src/app/services/song.service';
+import { AppStoreModule } from 'src/app/store';
+import { SetSongList, SetPlayList, SetCurrentIndex } from 'src/app/store/actions/player.actions';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +25,7 @@ export class HomeComponent implements OnInit {
     private route: ActivatedRoute,
     private sheetService: SheetService,
     private songService: SongService,
+    private store$: Store<AppStoreModule>
   ) {
 
     // resolve是为了 预先获取组件数据 (home-resolve.service.ts)
@@ -75,8 +79,11 @@ export class HomeComponent implements OnInit {
     //   console.log(res);
     //   this.getSongUrl(res.tracks[0].id);
     // });
-    this.sheetService.playSheet(id).subscribe(res => {
-      console.log(res);
+    this.sheetService.playSheet(id).subscribe(list => {
+      // console.log(res);
+      this.store$.dispatch(SetSongList({ songList: list }));
+      this.store$.dispatch(SetPlayList({ playList: list }));
+      this.store$.dispatch(SetCurrentIndex({ currentIndex: 0 }));
     });
   }
 }
