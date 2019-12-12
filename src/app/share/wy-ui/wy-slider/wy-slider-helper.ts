@@ -1,4 +1,4 @@
-export function SliderEvent(e: Event) { // 类似console.log, 可以做一个中间的调试
+export function sliderEvent(e: Event) { // 类似console.log, 可以做一个中间的调试
     e.stopPropagation();
     e.preventDefault();
 }

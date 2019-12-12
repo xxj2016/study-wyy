@@ -3,7 +3,7 @@ import { fromEvent, merge, Observable, Subscription } from 'rxjs';
 import { filter, tap, pluck, map, distinctUntilChanged, takeUntil } from 'rxjs/internal/operators';
 import { SliderEventObserverConfig, SliderValue } from 'src/app/services/data-types/wy-slider-types';
 import { DOCUMENT } from '@angular/common';
-import { SliderEvent, getElementOffset } from './wy-slider-helper';
+import { sliderEvent, getElementOffset } from './wy-slider-helper';
 import { inArray } from 'src/app/utils/array';
 import { limitNumberInRange, getPercent } from 'src/app/utils/number';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -16,7 +16,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{  // 注入一个token,才能实现 [(ngModel)]
     provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() => WySliderComponent),
+    useExisting: forwardRef(() => WySliderComponent), // 允许我们引用尚未定义的类
     multi: true
   }]
 })
@@ -87,7 +87,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
     };
     // 用一个对象来定义手机端的鼠标事件
     const touch: SliderEventObserverConfig = {
-      start: 'touchdown',
+      start: 'touchstart',
       move: 'touchmove',
       end: 'touchup',
       filter: (e: MouseEvent) => e instanceof TouchEvent,
@@ -100,7 +100,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
       source.startPlucked$ = fromEvent(this.sliderDom, start)
         .pipe(
           filter(filterFunc),
-          tap(SliderEvent), // 类似console.log, 可以做一个中间的调试
+          tap(sliderEvent), // 类似console.log, 可以做一个中间的调试
           pluck(...pluckKey),
           map((position: number) => this.findClosestValue(position))
         );
@@ -109,7 +109,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
       source.moveResolved$ = fromEvent(this.doc, move)
         .pipe(
           filter(filterFunc),
-          tap(SliderEvent), // 类似console.log, 可以做一个中间的调试
+          tap(sliderEvent), // 类似console.log, 可以做一个中间的调试
           pluck(...pluckKey),
           distinctUntilChanged(), // 防止触发频繁
           map((position: number) => this.findClosestValue(position)),
@@ -194,7 +194,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
     return res;
   }
 
-  判断是否为NAN
+  // 判断是否为NAN
   private assertValueValid(value: SliderValue): boolean {
     return isNaN(typeof value !== 'number' ? parseFloat(value) : value);
   }
@@ -256,7 +256,7 @@ export class WySliderComponent implements OnInit, OnInit, OnDestroy, ControlValu
   private onTouched(): void {}
 
   writeValue(value: SliderValue): void {
-    this.setValue(value); // 读取值，赋值
+    this.setValue(value, true); // 读取值，赋值
   }
   registerOnChange(fn: any): void {
     this.onValueChange = fn;

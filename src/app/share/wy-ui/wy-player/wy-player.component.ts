@@ -7,7 +7,7 @@ import { SliderValue } from 'src/app/services/data-types/wy-slider-types';
   styleUrls: ['./wy-player.component.less']
 })
 export class WyPlayerComponent implements OnInit {
-  sliderValue: SliderValue = 100;
+  sliderValue: SliderValue = 30;
   constructor() { }
 
   ngOnInit() {
