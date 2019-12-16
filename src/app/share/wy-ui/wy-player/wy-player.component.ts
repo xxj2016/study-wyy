@@ -11,7 +11,8 @@ import { PlayMode } from './player-type';
   styleUrls: ['./wy-player.component.less']
 })
 export class WyPlayerComponent implements OnInit {
-  
+  duration: number;
+  currentTime: number;
   sliderValue = 35;
   bufferOffset = 70;
 
@@ -70,8 +71,11 @@ export class WyPlayerComponent implements OnInit {
   }
 
   private watchCurrentSong(song: Song) {
-    this.currentSong = song;
-    console.log('song :', song);
+    if (song) {
+      this.currentSong = song;
+      console.log('song :', song);
+      this.duration = song.dt / 1000;
+    }
   }
 
 
@@ -81,5 +85,15 @@ export class WyPlayerComponent implements OnInit {
 
   private play() {
     this.audioEl.play();
+  }
+
+  get playUrl() {
+    return this.currentSong ? this.currentSong.al.picUrl : '//s4.music.126.net/style/web2/img/default/default_album.jpg';
+  }
+
+  onTimeUpdate(e: Event) {
+    console.log(e);
+    this.currentTime = (<HTMLAudioElement>e.target).currentTime;
+
   }
 }
