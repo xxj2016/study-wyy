@@ -14,8 +14,8 @@ import { SetCurrentIndex } from 'src/app/store/actions/player.actions';
 export class WyPlayerComponent implements OnInit {
   duration: number;
   currentTime: number;
-  sliderValue = 35;
-  bufferOffset = 70;
+  sliderValuePercent = 0;
+  bufferOffsetPercent = 0;
 
   songList: Song[];
   playList: Song[];
@@ -63,6 +63,11 @@ export class WyPlayerComponent implements OnInit {
     this.audioEl = this.audio.nativeElement;
   }
 
+  onPercentChange(percent) {
+    console.log(percent);
+    this.audioEl.currentTime = this.duration * (percent / 100);
+  }
+
 
 
   private watchList(list: Song[], type: string) {
@@ -103,6 +108,29 @@ export class WyPlayerComponent implements OnInit {
   // 获取当前播放时间
   onTimeUpdate(e: Event) {
     this.currentTime = (<HTMLAudioElement>e.target).currentTime;
+    this.sliderValuePercent = (this.currentTime / this.duration) * 100; // 更新滑块的位置
+
+    /* buffered 属性返回 TimeRanges 对象。
+
+      TimeRanges 对象表示音频的缓冲区间。
+
+      缓冲范围指的是已缓冲音视频的时间范围。如果用户在音视频中跳跃播放，会得到多个缓冲范围
+
+      TimeRanges: 表示音视频的已缓冲部分，TimeRanges 对象属性：:
+                  length - 获得音视频中已缓冲范围的数量
+                  start(index) - 获得某个已缓冲范围的开始位置
+                  end(index) - 获得某个已缓冲范围的结束位置
+                  注意：首个缓冲范围的下表是 0。
+
+      buffered.end(0) 缓冲区域结束的位置 是一个时间
+      
+    */
+    const buffered = this.audioEl.buffered;
+    // 歌曲还没准备好，获取缓冲部分是获取不到的
+    // 需判断
+    if (buffered.length && this.bufferOffsetPercent < 100) {
+      this.bufferOffsetPercent = (buffered.end(0) / this.duration) * 100;
+    }
   }
 
   // 切换播放/暂停
