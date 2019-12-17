@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Inject } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { AppStoreModule } from '../../../store/index';
 import { getSongList, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from '../../../store/selectors/player.selector';
 import { Song } from '../../../services/data-types/common.types';
 import { PlayMode } from './player-type';
 import { SetCurrentIndex } from 'src/app/store/actions/player.actions';
+import { Subscription, fromEvent } from 'rxjs';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-wy-player',
@@ -28,12 +30,24 @@ export class WyPlayerComponent implements OnInit {
   // 是否可以播放
   songReady = false;
 
+  // 音量
+  volume = 0;
+
+  // 是否显示音量面板
+  showVolumePanel = false;
+
+  // 当前点击部分是否音量面板本身
+  selfClick = false;
+
+  private winClick: Subscription;
+
   @ViewChild('audio', { static: true }) private audio: ElementRef;
   private audioEl: HTMLAudioElement;
 
 
   constructor(
-    private store$: Store<AppStoreModule>
+    private store$: Store<AppStoreModule>,
+    @Inject(DOCUMENT) private doc: Document,
   ) {
     const appStore$ = this.store$.pipe(select('player'));
     const stateArr = [{
@@ -61,14 +75,55 @@ export class WyPlayerComponent implements OnInit {
 
   ngOnInit() {
     this.audioEl = this.audio.nativeElement;
+    this.audioEl.volume = this.volume;
   }
 
-  onPercentChange(percent) {
-    console.log(percent);
-    this.audioEl.currentTime = this.duration * (percent / 100);
+  // 控制播放进度
+  onPercentChange(per: number) {
+    console.log(per);
+    if (this.currentSong) {
+      this.audioEl.currentTime = this.duration * (per / 100);
+    }
   }
 
+  // 控制音量
+  onVolumeChange(per: number) {
+    this.audioEl.volume = per / 100; //音量是0到1之间的值
+  }
 
+  // 显示音量控制面板
+  toggleVolPanel(evt: MouseEvent) {
+    // evt.stopPropagation;
+    this.togglePanel();
+  }
+
+  togglePanel() {
+    this.showVolumePanel = !this.showVolumePanel;
+    if (this.showVolumePanel) {
+      this.bindDocumentClickListener();
+    } else {
+      this.unbindDocumentClickListener();
+    }
+  }
+
+  private bindDocumentClickListener() {
+    if (!this.winClick) {
+      this.winClick = fromEvent(this.doc, "click").subscribe(() => {
+        if (!this.selfClick) { //说明点击了播放器意外的部分
+          this.showVolumePanel = false;
+          this.unbindDocumentClickListener();
+        }
+        this.selfClick = false;
+      })
+    }
+  }
+
+  private unbindDocumentClickListener() {
+    if (this.selfClick) {
+      this.winClick.unsubscribe();
+      this.winClick = null;
+    }
+  }
 
   private watchList(list: Song[], type: string) {
     this[type] = list;
