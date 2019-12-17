@@ -6,9 +6,9 @@
     <div class="container">
         <div class="wrap">
             <div class="btns">
-                <i class="prev"></i>
-                <i class="toggle"></i>
-                <i class="next"></i>
+                <i class="prev" (click)="switchSong(currentIndex - 1, 'onPrev')"></i>
+                <i class="toggle" [class.playing]="playing" (click)="onToggle()"></i>
+                <i class="next" (click)="switchSong(currentIndex + 1, 'onNext')"></i>
             </div>
             <div class="head">
                 <img [src]="playUrl" />
