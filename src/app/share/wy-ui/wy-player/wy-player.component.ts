@@ -4,9 +4,16 @@ import { AppStoreModule } from '../../../store/index';
 import { getSongList, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from '../../../store/selectors/player.selector';
 import { Song } from '../../../services/data-types/common.types';
 import { PlayMode } from './player-type';
-import { SetCurrentIndex } from 'src/app/store/actions/player.actions';
+import { SetCurrentIndex, SetPlayMode, SetPlayList } from 'src/app/store/actions/player.actions';
 import { Subscription, fromEvent } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
+import { shuffle } from 'src/app/utils/array';
+
+const modeTypes: PlayMode[] = [
+  { type: "loop", label: "循环" },
+  { type: "random", label: "随机" },
+  { type: "singleLoop", label: "单曲循环" },
+];
 
 @Component({
   selector: 'app-wy-player',
@@ -40,6 +47,12 @@ export class WyPlayerComponent implements OnInit {
   selfClick = false;
 
   private winClick: Subscription;
+
+  // 当前播放模式
+  currentMode: PlayMode;
+
+  // 点击切换模式的次数
+  modeCount: number = 0;
 
   @ViewChild('audio', { static: true }) private audio: ElementRef;
   private audioEl: HTMLAudioElement;
@@ -135,6 +148,15 @@ export class WyPlayerComponent implements OnInit {
 
   private watchPlayMode(mode: PlayMode) {
     console.log('mode :', mode);
+    this.currentMode = mode;
+    if (this.songList) {
+      let list = this.songList.slice();
+      if (mode.type === 'random') {
+        list = shuffle(this.songList);
+        this.updateCurrentIndex(list, this.currentSong);
+        this.store$.dispatch(SetPlayList({playList: list}));
+      }
+    }
   }
 
   private watchCurrentSong(song: Song) {
@@ -143,6 +165,19 @@ export class WyPlayerComponent implements OnInit {
       console.log('song :', song);
       this.duration = song.dt / 1000;
     }
+  }
+
+  private updateCurrentIndex(list: Song[], song: Song) {
+    const newIndex = list.findIndex(item => item.id === song.id);
+    console.log(newIndex);
+    this.store$.dispatch(SetCurrentIndex({currentIndex: newIndex}));
+  }
+
+  // 切换播放模式
+  changeMode() {
+    const mode = modeTypes[++this.modeCount % 3];
+    console.log(mode);
+    this.store$.dispatch(SetPlayMode({ playMode: mode }));
   }
 
 
