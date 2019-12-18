@@ -38,7 +38,7 @@ export class WyPlayerComponent implements OnInit {
   songReady = false;
 
   // 音量
-  volume = 0;
+  volume = 20;
 
   // 是否显示音量面板
   showVolumePanel = false;
@@ -88,7 +88,7 @@ export class WyPlayerComponent implements OnInit {
 
   ngOnInit() {
     this.audioEl = this.audio.nativeElement;
-    this.audioEl.volume = this.volume;
+    this.audioEl.volume = this.volume / 100; //音量是0到1之间的值 初始化音量
   }
 
   // 控制播放进度
@@ -264,5 +264,15 @@ export class WyPlayerComponent implements OnInit {
   private loop() {
     this.audioEl.currentTime = 0;
     this.play();
+  }
+
+  // 判断播放结束后的逻辑
+  onEnded() {
+    this.playing = false;
+    if (this.currentMode.type === 'singleLoop') {
+      this.loop();
+    } else {
+      this.switchSong(this.currentIndex + 1, 'onNext');
+    }
   }
 }
