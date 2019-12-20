@@ -14,9 +14,9 @@
         </div>
     </div>
     <div class="bd">
-        <img src="//music.163.com/api/img/blur/109951163826278397" alt="" class="imgbg">
+        <img [src]="currentSong?.al?.picUrl" alt="" class="imgbg">
         <div class="msk"></div>
-        <div class="list-wrap">
+        <app-wy-scroll class="list-wrap" [data]="songList">
             <ul>
                 <li [class.current]="currentIndex === i" *ngFor="let item of songList; index as i" (click)="onChangeSong.emit(item)">
                     <i class="col arrow"></i>
@@ -36,7 +36,7 @@
                     <div class="col link"></div>
                 </li>
             </ul>
-        </div>
+        </app-wy-scroll>
         <ul>歌词</ul>
     </div>
 </div>
