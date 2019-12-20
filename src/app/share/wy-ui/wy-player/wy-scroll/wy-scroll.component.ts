@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ViewChild, ElementRef, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import BScroll from "@better-scroll/core";
 import { Song } from 'src/app/services/data-types/common.types';
 import ScrollBar from '@better-scroll/scroll-bar'
@@ -22,7 +22,8 @@ export class WyScrollComponent implements OnInit {
   @ViewChild('wrap', { static: true }) private wrapRef: ElementRef;
   @Input() refreshDelay = 50;
   @Input() data: Song[];
-  constructor() { }
+  @Output() private onScrollEnd = new EventEmitter<number>();
+  constructor(readonly el: ElementRef) { }
 
   ngOnInit() {
   }
@@ -36,6 +37,7 @@ export class WyScrollComponent implements OnInit {
       },
       mouseWheel: {}
     });
+    this.bs.on('scrollEnd', ({ y }) => this.onScrollEnd.emit(y));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -44,6 +46,10 @@ export class WyScrollComponent implements OnInit {
     if (changes['data']) {
       this.refreshScroll();
     }
+  }
+
+  scrollToElement(...args) {
+    this.bs.scrollToElement.apply(this.bs, args);
   }
 
   refresh() {

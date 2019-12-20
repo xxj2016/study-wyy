@@ -17,12 +17,12 @@
             <div class="play">
                 <div class="words clearfix">
                     <p class="ellipsis margin-bottom-none">{{currentSong?.name}}</p>
-                    <ul class="songs clearfix margin-bottom-none">
-                        <li *ngFor="let singer of currentSong?.ar; last as isLast;">
+                    <span class="songs ellipsis clearfix margin-bottom-none">
+                        <span *ngFor="let singer of currentSong?.ar; last as isLast;">
                             <a>{{singer.name}}</a>
                             <span [hidden]="isLast">&nbsp;/&nbsp;</span>
-                        </li>
-                    </ul>
+                        </span>
+                    </span>
                 </div>
                 <div class="bar">
                     <div class="slider-wrap">

@@ -18,6 +18,8 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @Output() onChangeSong = new EventEmitter<void>();
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
+
+  scrollY = 0;
   constructor() { }
 
   ngOnInit() {
@@ -31,6 +33,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
     if(changes['currentSong']) {
       console.log(this.currentSong);
+      if (this.currentSong) {
+        if (this.show) {
+          this.scrollToCurrent();
+        }
+      }
     }
     if (changes['show']) {
       if (!changes['show'].firstChange && this.show) {
@@ -40,4 +47,17 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
   }
 
+  // 保证当前播放歌曲在滚动列表的可视区域
+  scrollToCurrent() {
+    const songListRefs = this.wyScroll.first.el.nativeElement.querySelectorAll('ul li');
+    console.log(songListRefs);
+    if (songListRefs.length) {
+      const currentLi = <HTMLElement>songListRefs[this.currentIndex];
+      const offsetTop = currentLi.offsetTop;
+      const offsetHeight = currentLi.offsetHeight;
+      if (offsetTop - Math.abs(this.scrollY) > offsetHeight* 5 || (offsetTop < Math.abs(this.scrollY)) ) {
+        this.wyScroll.first.scrollToElement(currentLi, 300, false, false);
+      }
+    }
+  }
 }
