@@ -43,6 +43,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       if (!changes['show'].firstChange && this.show) {
         console.log('this.wyScroll: ', this.wyScroll);
         this.wyScroll.first.refreshScroll();
+        setTimeout(() => {
+          if (this.currentSong) {
+            this.scrollToCurrent();
+          }
+        }, 80);
       }
     }
   }
@@ -52,7 +57,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     const songListRefs = this.wyScroll.first.el.nativeElement.querySelectorAll('ul li');
     console.log(songListRefs);
     if (songListRefs.length) {
-      const currentLi = <HTMLElement>songListRefs[this.currentIndex];
+      const currentLi = <HTMLElement>songListRefs[this.currentIndex || 0];
       const offsetTop = currentLi.offsetTop;
       const offsetHeight = currentLi.offsetHeight;
       if (offsetTop - Math.abs(this.scrollY) > offsetHeight* 5 || (offsetTop < Math.abs(this.scrollY)) ) {
