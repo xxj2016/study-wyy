@@ -1,8 +1,7 @@
-import { SetPlayList, SetSongList, SetPlayMode, SetCurrentIndex } from '../actions/player.actions';
+import { SetPlaying, SetPlayList, SetSongList, SetPlayMode, SetCurrentIndex } from '../actions/player.actions';
 import { PlayMode } from 'src/app/share/wy-ui/wy-player/player-type';
 import { Song } from '../../services/data-types/common.types';
 import { createReducer, on, Action } from '@ngrx/store';
-import { SetPlaying } from '../actions/player.actions';
 
 export type PlayState = {
   // 播放状态

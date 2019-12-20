@@ -54,6 +54,9 @@ export class WyPlayerComponent implements OnInit {
   // 点击切换模式的次数
   modeCount: number = 0;
 
+  // 是否显示列表面板
+  showPanel = false;
+
   @ViewChild('audio', { static: true }) private audio: ElementRef;
   private audioEl: HTMLAudioElement;
 
@@ -107,23 +110,33 @@ export class WyPlayerComponent implements OnInit {
   // 显示音量控制面板
   toggleVolPanel(evt: MouseEvent) {
     // evt.stopPropagation;
-    this.togglePanel();
+    this.togglePanel('showVolumePanel');
   }
 
-  togglePanel() {
-    this.showVolumePanel = !this.showVolumePanel;
-    if (this.showVolumePanel) {
+  // 打开列表面板
+  toggleListPanel() {
+    if (this.songList.length) {
+      this.togglePanel('showPanel');
+    }
+  }
+
+  togglePanel(type: string) {
+    this[type] = !this[type];
+    // this.showVolumePanel = !this.showVolumePanel;
+    if (this.showVolumePanel || this.showPanel) {
       this.bindDocumentClickListener();
     } else {
       this.unbindDocumentClickListener();
     }
   }
 
+
   private bindDocumentClickListener() {
     if (!this.winClick) {
       this.winClick = fromEvent(this.doc, "click").subscribe(() => {
         if (!this.selfClick) { //说明点击了播放器意外的部分
           this.showVolumePanel = false;
+          this.showPanel = false;
           this.unbindDocumentClickListener();
         }
         this.selfClick = false;
@@ -238,7 +251,7 @@ export class WyPlayerComponent implements OnInit {
   }
 
   // 上一首/下一首
-  switchSong(index: number, type: string) {
+  switchSong(index: number, type: 'onPrev' | 'onNext') {
     if (!this.songReady) return;
     if (this.playList.length === 1) { // 播放列表只有一首歌
       this.loop();
@@ -274,5 +287,10 @@ export class WyPlayerComponent implements OnInit {
     } else {
       this.switchSong(this.currentIndex + 1, 'onNext');
     }
+  }
+
+  // 改变歌曲
+  onChangeSong(song: Song) {
+    this.updateCurrentIndex(this.playList, song);
   }
 }
