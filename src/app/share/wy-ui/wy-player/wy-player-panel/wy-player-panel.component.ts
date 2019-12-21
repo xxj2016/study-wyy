@@ -4,6 +4,7 @@ import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
 import { findIndex } from 'src/app/utils/array';
 import { WINDOW } from 'src/app/services/services.module';
 import { timer } from 'rxjs';
+import { SongService } from 'src/app/services/song.service';
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -24,7 +25,8 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
   scrollY = 0;
   constructor(
-    @Inject(WINDOW) private win: Window
+    @Inject(WINDOW) private win: Window,
+    private songService: SongService,
   ) { }
 
   ngOnInit() {
@@ -41,6 +43,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       console.log(this.currentSong);
       if (this.currentSong) {
         this.currentIndex = findIndex(this.songList, this.currentSong); // 打开面板时，拿当前歌曲列表的当前播放歌曲的索引
+        this.updateLyric();
         if (this.show) {
           this.scrollToCurrent();
         }
@@ -71,6 +74,12 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         }, 80);
       }
     }
+  }
+
+  private updateLyric() {
+    this.songService.getLyric(this.currentSong.id).subscribe(res => {
+      console.log('res:', res);
+    })
   }
 
   // 保证当前播放歌曲在滚动列表的可视区域
