@@ -1,8 +1,10 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, ViewChild, ElementRef, Input, SimpleChanges, Output, EventEmitter, Inject } from '@angular/core';
 import BScroll from "@better-scroll/core";
 import { Song } from 'src/app/services/data-types/common.types';
 import ScrollBar from '@better-scroll/scroll-bar'
 import MouseWheel from '@better-scroll/mouse-wheel'
+import { WINDOW } from 'src/app/services/services.module';
+import { timer } from 'rxjs';
 BScroll.use(MouseWheel)
 BScroll.use(ScrollBar)
 
@@ -23,7 +25,10 @@ export class WyScrollComponent implements OnInit {
   @Input() refreshDelay = 50;
   @Input() data: Song[];
   @Output() private onScrollEnd = new EventEmitter<number>();
-  constructor(readonly el: ElementRef) { }
+  constructor(
+    readonly el: ElementRef,
+    @Inject(WINDOW) private win: Window
+  ) { }
 
   ngOnInit() {
   }
@@ -57,8 +62,16 @@ export class WyScrollComponent implements OnInit {
   }
 
   refreshScroll() {
-    setTimeout(() => {
+    // setTimeout(() => {
+    //   this.refresh();
+    // }, this.refreshDelay);
+
+    // this.win.setTimeout( () => {
+    //   this.refresh();
+    // }, this.refreshDelay);
+
+    timer(this.refreshDelay).subscribe(() => {
       this.refresh();
-    }, this.refreshDelay);
+    })
   }
 }

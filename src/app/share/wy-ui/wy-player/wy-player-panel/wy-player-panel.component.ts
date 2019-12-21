@@ -1,7 +1,9 @@
-import { Component, OnInit, Input, SimpleChanges, OnChanges, Output, EventEmitter, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, Input, SimpleChanges, OnChanges, Output, EventEmitter, ViewChildren, QueryList, Inject } from '@angular/core';
 import { Song } from 'src/app/services/data-types/common.types';
 import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
 import { findIndex } from 'src/app/utils/array';
+import { WINDOW } from 'src/app/services/services.module';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -21,7 +23,9 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
 
   scrollY = 0;
-  constructor() { }
+  constructor(
+    @Inject(WINDOW) private win: Window
+  ) { }
 
   ngOnInit() {
   }
@@ -46,10 +50,24 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       if (!changes['show'].firstChange && this.show) {
         console.log('this.wyScroll: ', this.wyScroll);
         this.wyScroll.first.refreshScroll();
-        setTimeout(() => {
+        // setTimeout(() => {
+        //   if (this.currentSong) {
+        //     this.scrollToCurrent(0);
+        //   }
+        // }, 80);
+
+        // 用timer代替window的setTimeout
+        // timer(80).subscribe(() => {
+        //   if (this.currentSong) {
+        //         this.scrollToCurrent(0);
+        //       }
+        // });
+
+        
+        this.win.setTimeout( () => {
           if (this.currentSong) {
-            this.scrollToCurrent(0);
-          }
+                this.scrollToCurrent(0);
+              }
         }, 80);
       }
     }
