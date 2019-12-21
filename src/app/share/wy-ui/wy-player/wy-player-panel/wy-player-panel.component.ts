@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, SimpleChanges, OnChanges, Output, EventEmitter, ViewChildren, QueryList } from '@angular/core';
 import { Song } from 'src/app/services/data-types/common.types';
 import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
+import { findIndex } from 'src/app/utils/array';
 
 @Component({
   selector: 'app-wy-player-panel',
@@ -29,11 +30,13 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
     //Add '${implements OnChanges}' to the class.
     if (changes['songList']) {
-      console.log(this.songList);
+      // console.log(this.songList);
+      this.currentIndex = 0;
     }
     if(changes['currentSong']) {
       console.log(this.currentSong);
       if (this.currentSong) {
+        this.currentIndex = findIndex(this.songList, this.currentSong); // 打开面板时，拿当前歌曲列表的当前播放歌曲的索引
         if (this.show) {
           this.scrollToCurrent();
         }
@@ -45,7 +48,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         this.wyScroll.first.refreshScroll();
         setTimeout(() => {
           if (this.currentSong) {
-            this.scrollToCurrent();
+            this.scrollToCurrent(0);
           }
         }, 80);
       }
@@ -53,7 +56,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   }
 
   // 保证当前播放歌曲在滚动列表的可视区域
-  scrollToCurrent() {
+  scrollToCurrent(speed = 300) {
     const songListRefs = this.wyScroll.first.el.nativeElement.querySelectorAll('ul li');
     console.log(songListRefs);
     if (songListRefs.length) {
@@ -61,7 +64,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
       const offsetTop = currentLi.offsetTop;
       const offsetHeight = currentLi.offsetHeight;
       if (offsetTop - Math.abs(this.scrollY) > offsetHeight* 5 || (offsetTop < Math.abs(this.scrollY)) ) {
-        this.wyScroll.first.scrollToElement(currentLi, 300, false, false);
+        this.wyScroll.first.scrollToElement(currentLi, speed, false, false);
       }
     }
   }
