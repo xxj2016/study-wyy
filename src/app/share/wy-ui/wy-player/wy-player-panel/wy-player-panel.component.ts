@@ -14,6 +14,7 @@ import { WyLyric, BaseLyricLine } from './wy-lyric';
 })
 export class WyPlayerPanelComponent implements OnInit, OnChanges {
 
+  @Input() playing: boolean;
   @Input() songList: Song[];
   @Input() currentSong: Song;
   @Input() currentIndex: number;
@@ -27,6 +28,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   scrollY = 0;
 
   currentLyric: BaseLyricLine[];
+
+  currentLineNum: number;
+  startStamp: number
+
+  private lyric: WyLyric;
   constructor(
     @Inject(WINDOW) private win: Window,
     private songService: SongService,
@@ -38,11 +44,18 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
     //Add '${implements OnChanges}' to the class.
+
+    if (changes['playing']) {
+      if (!changes['playing'].firstChange) {
+        this.lyric && this.lyric.togglePlay(this.playing);
+      }
+    }
+
     if (changes['songList']) {
       // console.log(this.songList);
       this.currentIndex = 0;
     }
-    if(changes['currentSong']) {
+    if (changes['currentSong']) {
       console.log(this.currentSong);
       if (this.currentSong) {
         this.currentIndex = findIndex(this.songList, this.currentSong); // 打开面板时，拿当前歌曲列表的当前播放歌曲的索引
@@ -70,11 +83,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         //       }
         // });
 
-        
-        this.win.setTimeout( () => {
+
+        this.win.setTimeout(() => {
           if (this.currentSong) {
-                this.scrollToCurrent(0);
-              }
+            this.scrollToCurrent(0);
+          }
         }, 80);
       }
     }
@@ -83,22 +96,36 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   private updateLyric() {
     this.songService.getLyric(this.currentSong.id).subscribe(res => {
       console.log('res:', res);
-      const lyric = new WyLyric(res);
-      console.log(lyric);
-      this.currentLyric = lyric.lines;
+      this.lyric = new WyLyric(res);
+      console.log(this.lyric);
+      this.currentLyric = this.lyric.lines;
       console.log('currentLyric:', this.currentLyric);
+      if (this.playing) {
+        this.lyric.play();
+      }
+      this.handkeLyric();
+      this.wyScroll.last.scrollTo(0, 0);
+
+      
+    })
+  }
+
+  handkeLyric() {
+    this.lyric.handler.subscribe(({ lineNum }) => {
+      console.log('lineNum:', lineNum);
+      this.currentLineNum = lineNum;
     })
   }
 
   // 保证当前播放歌曲在滚动列表的可视区域
   scrollToCurrent(speed = 300) {
     const songListRefs = this.wyScroll.first.el.nativeElement.querySelectorAll('ul li');
-    console.log(songListRefs);
+    // console.log(songListRefs);
     if (songListRefs.length) {
       const currentLi = <HTMLElement>songListRefs[this.currentIndex || 0];
       const offsetTop = currentLi.offsetTop;
       const offsetHeight = currentLi.offsetHeight;
-      if (offsetTop - Math.abs(this.scrollY) > offsetHeight* 5 || (offsetTop < Math.abs(this.scrollY)) ) {
+      if (offsetTop - Math.abs(this.scrollY) > offsetHeight * 5 || (offsetTop < Math.abs(this.scrollY))) {
         this.wyScroll.first.scrollToElement(currentLi, speed, false, false);
       }
     }

@@ -57,6 +57,10 @@ export class WyScrollComponent implements OnInit {
     this.bs.scrollToElement.apply(this.bs, args);
   }
 
+  scrollTo(...args) {
+    this.bs.scrollTo.apply(this.bs, args);
+  }
+
   refresh() {
     this.bs.refresh();
   }
