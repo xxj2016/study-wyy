@@ -33,6 +33,8 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   startStamp: number
 
   private lyric: WyLyric;
+  private lyricRefs: NodeList;
+
   constructor(
     @Inject(WINDOW) private win: Window,
     private songService: SongService,
@@ -41,6 +43,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   ngOnInit() {
   }
 
+  // 监听父组件传进来的属性变化
   ngOnChanges(changes: SimpleChanges): void {
     //Called before any other lifecycle hook. Use it to inject dependencies, but avoid any serious work here.
     //Add '${implements OnChanges}' to the class.
@@ -63,6 +66,8 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         if (this.show) {
           this.scrollToCurrent();
         }
+      } else {
+        this.resetLyric();
       }
     }
     if (changes['show']) {
@@ -70,6 +75,13 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         console.log('this.wyScroll: ', this.wyScroll);
         this.wyScroll.first.refreshScroll();
         this.wyScroll.last.refreshScroll();
+
+        timer(80).subscribe(() => {
+          if (this.currentSong) {
+            this.scrollToCurrent(0);
+          }
+        });
+
         // setTimeout(() => {
         //   if (this.currentSong) {
         //     this.scrollToCurrent(0);
@@ -77,43 +89,67 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         // }, 80);
 
         // 用timer代替window的setTimeout
-        // timer(80).subscribe(() => {
+        // this.win.setTimeout(() => {
         //   if (this.currentSong) {
-        //         this.scrollToCurrent(0);
-        //       }
-        // });
-
-
-        this.win.setTimeout(() => {
-          if (this.currentSong) {
-            this.scrollToCurrent(0);
-          }
-        }, 80);
+        //     this.scrollToCurrent(0);
+        //   }
+        // }, 80);
       }
     }
   }
 
+  // 更新歌词
   private updateLyric() {
+    this.resetLyric();
     this.songService.getLyric(this.currentSong.id).subscribe(res => {
       console.log('res:', res);
       this.lyric = new WyLyric(res);
       console.log(this.lyric);
       this.currentLyric = this.lyric.lines;
       console.log('currentLyric:', this.currentLyric);
+      const startLine = res.tlyric ? 1 : 2;
+      this.handleLyric(startLine);
+      this.wyScroll.last.scrollTo(0, 0);
       if (this.playing) {
         this.lyric.play();
       }
-      this.handkeLyric();
-      this.wyScroll.last.scrollTo(0, 0);
-
-      
     })
   }
 
-  handkeLyric() {
+  // 重置歌词逻辑
+  private resetLyric() {
+    if (this.lyric) {
+      this.lyric.stop();
+      this.lyric = null;
+      this.currentLyric = [];
+      this.currentLineNum = 0;
+      this.lyricRefs = null;
+    }
+  }
+
+  handleLyric(startLine: number = 2) {
     this.lyric.handler.subscribe(({ lineNum }) => {
-      console.log('lineNum:', lineNum);
-      this.currentLineNum = lineNum;
+      if (!this.lyricRefs) {
+        console.log('lineNum:', lineNum);
+        this.currentLineNum = lineNum;
+        // 获取歌词li标签
+        this.lyricRefs = this.wyScroll.last.el.nativeElement.querySelectorAll('ul li');
+        console.log('lyricRefs:', this.lyricRefs);
+      }
+
+      // 监听歌词滚动逻辑
+      if (this.lyricRefs.length) {
+        this.currentLineNum = lineNum;
+        if (lineNum > startLine) {
+          const targetLine = this.lyricRefs[lineNum - startLine];
+
+          if (targetLine) {
+            this.wyScroll.last.scrollToElement(targetLine, 300, false, false);
+          }
+        } else {
+          this.wyScroll.last.scrollTo(0, 0);
+        }
+      }
     })
   }
 

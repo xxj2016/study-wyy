@@ -46,22 +46,24 @@ export class WyLyric {
         }
     }
 
+    // 生成单语歌词
     private generLyric() {
         const lines = this.lrc.lyric.split('\n');
         console.log(lines);
         lines.forEach(line => this.makeline(line));
     }
 
+    // 生成双语歌词
     private generTLyric() {
         const lines = this.lrc.lyric.split('\n');
         const tlines = this.lrc.tlyric.split('\n').filter(item => timeExp.exec(item) != null);
         console.log('lines:', lines);
         console.log('tlines:', tlines);
-        
+
         const moreLine = lines.length - tlines.length;
 
         let tempArr = [];
-        if(moreLine > 0) {
+        if (moreLine > 0) {
             tempArr = [lines, tlines];
         } else {
             tempArr = [tlines, lines];
@@ -92,6 +94,7 @@ export class WyLyric {
         zipLines$.subscribe(([line, tline]) => this.makeline(line, tline));
     }
 
+    // 解析歌词
     private makeline(line: string, tline = '') {
         const result = timeExp.exec(line);
         if (result) {
@@ -109,6 +112,7 @@ export class WyLyric {
 
     }
 
+    // 播放歌词
     play(startTime = 0) {
         if (!this.lines.length) return;
         if (!this.playing) {
@@ -125,6 +129,7 @@ export class WyLyric {
         }
     }
 
+    // 播放歌词
     private playReset() {
         let line = this.lines[this.curNum];
         const delay = line.time - (Date.now() - this.startStamp);
@@ -136,6 +141,7 @@ export class WyLyric {
         }, delay);
     }
 
+    // 将当前歌词索引发射出去
     private callHandler(i: number) {
         this.handler.next({
             txt: this.lines[i].txt,
@@ -145,13 +151,14 @@ export class WyLyric {
 
     }
 
+    // 查找当前歌词的索引
     private findCurNum(time: number): number {
         const index = this.lines.findIndex(item => time <= item.time);
         return index === -1 ? this.lines.length - 1 : index;
     }
 
 
-
+    // 暂停/开始播放歌词
     togglePlay(playing: boolean) {
         const now = Date.now();
         this.playing = playing;
@@ -165,7 +172,8 @@ export class WyLyric {
 
     }
 
-    private stop() {
+    // 停止播放歌词
+    stop() {
         if (this.playing) {
             this.playing = false;
         }
