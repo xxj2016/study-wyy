@@ -1,5 +1,6 @@
 import { Lyric } from '../../../../services/data-types/common.types'
-import { Subject } from 'rxjs';
+import { Subject, from, zip } from 'rxjs';
+import { skip } from 'rxjs/internal/operators';
 
 const timeExp = /\[(\d{2}):(\d{2}).(\d{2,3})\]/;
 export interface BaseLyricLine {
@@ -52,14 +53,51 @@ export class WyLyric {
     }
 
     private generTLyric() {
+        const lines = this.lrc.lyric.split('\n');
+        const tlines = this.lrc.tlyric.split('\n').filter(item => timeExp.exec(item) != null);
+        console.log('lines:', lines);
+        console.log('tlines:', tlines);
+        
+        const moreLine = lines.length - tlines.length;
 
+        let tempArr = [];
+        if(moreLine > 0) {
+            tempArr = [lines, tlines];
+        } else {
+            tempArr = [tlines, lines];
+        }
+
+        const first = timeExp.exec(tempArr[1][0])[0];
+        console.log('first:', first);
+
+        const skipIndex = tempArr[0].findIndex(item => {
+            const exec = timeExp.exec(item);
+            if (exec) {
+                return exec[0] === first;
+            }
+        });
+        const _skip = skipIndex === -1 ? 0 : skipIndex;
+        const skipItems = tempArr[0].slice(0, _skip);
+        if (skipItems.length) {
+            skipItems.forEach(line => this.makeline(line));
+        }
+
+        let zipLines$;
+        if (moreLine > 0) {
+            zipLines$ = zip(from(lines).pipe(skip(_skip)), from(tlines));
+        } else {
+            zipLines$ = zip(from(lines), from(lines).pipe(skip(_skip)));
+        }
+
+        zipLines$.subscribe(([line, tline]) => this.makeline(line, tline));
     }
 
-    private makeline(line: string) {
+    private makeline(line: string, tline = '') {
         const result = timeExp.exec(line);
         if (result) {
             const txt = line.replace(timeExp, '').trim();
-            const txtCn = '';
+            // const txtCn = '';
+            const txtCn = tline.replace(timeExp, '').trim();
             if (txt) {
                 const thirdResult = result[3] || '00';
                 const len = thirdResult.length;
