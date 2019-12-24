@@ -8,6 +8,7 @@ import { SetCurrentIndex, SetPlayMode, SetPlayList } from 'src/app/store/actions
 import { Subscription, fromEvent } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 import { shuffle, findIndex } from 'src/app/utils/array';
+import { WyPlayerPanelComponent } from './wy-player-panel/wy-player-panel.component';
 
 const modeTypes: PlayMode[] = [
   { type: "loop", label: "循环" },
@@ -58,6 +59,7 @@ export class WyPlayerComponent implements OnInit {
   showPanel = false;
 
   @ViewChild('audio', { static: true }) private audio: ElementRef;
+  @ViewChild(WyPlayerPanelComponent, { static: true }) private playerPanel: WyPlayerPanelComponent;
   private audioEl: HTMLAudioElement;
 
 
@@ -98,7 +100,12 @@ export class WyPlayerComponent implements OnInit {
   onPercentChange(per: number) {
     console.log(per);
     if (this.currentSong) {
-      this.audioEl.currentTime = this.duration * (per / 100);
+      const currentTime = this.duration * (per / 100);
+      this.audioEl.currentTime = currentTime;
+      if(this.playerPanel) {
+        this.playerPanel.seekLyric(currentTime * 1000); // *1000是转化成时间戳传进去
+      }
+      
     }
   }
 
@@ -277,6 +284,9 @@ export class WyPlayerComponent implements OnInit {
   private loop() {
     this.audioEl.currentTime = 0;
     this.play();
+    if (this.playerPanel) {
+      this.playerPanel.seekLyric(0);
+    }
   }
 
   // 判断播放结束后的逻辑

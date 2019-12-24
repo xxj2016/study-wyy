@@ -127,6 +127,12 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
   }
 
+  seekLyric(time: number) {
+    if (this.lyric) {
+      this.lyric.seek(time);
+    }
+  }
+
   handleLyric(startLine: number = 2) {
     this.lyric.handler.subscribe(({ lineNum }) => {
       if (!this.lyricRefs) {

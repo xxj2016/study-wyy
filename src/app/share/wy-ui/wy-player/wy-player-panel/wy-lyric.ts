@@ -113,15 +113,18 @@ export class WyLyric {
     }
 
     // 播放歌词
-    play(startTime = 0) {
+    play(startTime = 0, skip = false) {
         if (!this.lines.length) return;
         if (!this.playing) {
             this.playing = true;
         }
 
         this.curNum = this.findCurNum(startTime);
-        console.log('(this.curNum: ', this.curNum);
+        console.log('this.curNum: ', this.curNum);
         this.startStamp = Date.now() - startTime;
+        if (!skip) {
+            this.callHandler(this.curNum - 1);
+        }
 
         if (this.curNum < this.lines.length) {
             clearTimeout(this.timer);
@@ -143,11 +146,14 @@ export class WyLyric {
 
     // 将当前歌词索引发射出去
     private callHandler(i: number) {
-        this.handler.next({
-            txt: this.lines[i].txt,
-            txtCn: this.lines[i].txtCn,
-            lineNum: i,
-        })
+        if (i > 0) {
+            console.log(i);
+            this.handler.next({
+                txt: this.lines[i].txt,
+                txtCn: this.lines[i].txtCn,
+                lineNum: i,
+            })
+        }
 
     }
 
@@ -164,7 +170,7 @@ export class WyLyric {
         this.playing = playing;
         if (playing) {
             const startTimme = (this.pauseStamp || now) - (this.startStamp || now);
-            this.play(startTimme);
+            this.play(startTimme, true);
         } else {
             this.stop();
             this.pauseStamp = now;
@@ -178,5 +184,10 @@ export class WyLyric {
             this.playing = false;
         }
         clearTimeout(this.timer);
+    }
+
+    seek(time: number) {
+        console.log('1212121212');
+        this.play(time);
     }
 }
