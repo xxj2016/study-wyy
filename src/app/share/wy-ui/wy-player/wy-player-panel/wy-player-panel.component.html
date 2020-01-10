@@ -18,8 +18,7 @@
         <div class="msk"></div>
         <app-wy-scroll class="list-wrap" [data]="songList" (onScrollEnd)="scrollY = $event">
             <ul>
-                <li [class.current]="currentIndex === i" *ngFor="let item of songList; index as i"
-                    (click)="onChangeSong.emit(item)">
+                <li [class.current]="currentIndex === i" *ngFor="let item of songList; index as i" (click)="onChangeSong.emit(item)">
                     <i class="col arrow"></i>
                     <div class="col name ellipsis">{{item.name}}</div>
                     <div class="col icons">
@@ -38,9 +37,9 @@
                 </li>
             </ul>
         </app-wy-scroll>
-        <app-wy-scroll class="list-lyric">
+        <app-wy-scroll class="list-lyric" [data]="currentLyric">
             <ul>
-                <li *ngFor="let item of currentLyric; index as i;"  [class.current]="currentLineNum === i">
+                <li *ngFor="let item of currentLyric; index as i;" [class.current]="currentLineNum === i">
                     {{item.txt}} <br /> {{item.txtCn}}
                 </li>
             </ul>
