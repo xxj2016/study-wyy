@@ -1,5 +1,5 @@
 import { Lyric } from '../../../../services/data-types/common.types'
-import { Subject, from, zip } from 'rxjs';
+import { Subject, from, zip, Subscription, timer } from 'rxjs';
 import { skip } from 'rxjs/internal/operators';
 
 const timeExp = /\[(\d{2}):(\d{2}).(\d{2,3})\]/;
@@ -27,7 +27,7 @@ export class WyLyric {
 
 
     handler = new Subject<Handler>();
-    private timer: any;
+    private timer$: Subscription;
 
 
     constructor(lrc: Lyric) {
@@ -127,7 +127,8 @@ export class WyLyric {
         }
 
         if (this.curNum < this.lines.length) {
-            clearTimeout(this.timer);
+            // clearTimeout(this.timer$);
+            this.timer$.closed;
             this.playReset();
         }
     }
@@ -136,12 +137,12 @@ export class WyLyric {
     private playReset() {
         let line = this.lines[this.curNum];
         const delay = line.time - (Date.now() - this.startStamp);
-        this.timer = setTimeout(() => {
+        this.timer$ = timer(delay).subscribe(() => {
             this.callHandler(this.curNum++);
             if (this.curNum < this.lines.length && this.playing) {
                 this.playReset();
             }
-        }, delay);
+        });
     }
 
     // 将当前歌词索引发射出去
