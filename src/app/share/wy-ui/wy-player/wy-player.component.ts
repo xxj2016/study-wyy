@@ -10,6 +10,7 @@ import { DOCUMENT } from '@angular/common';
 import { shuffle, findIndex } from 'src/app/utils/array';
 import { WyPlayerPanelComponent } from './wy-player-panel/wy-player-panel.component';
 import { NzModalService } from 'ng-zorro-antd';
+import { BatchActionsService } from 'src/app/store/batch-actions.service';
 
 const modeTypes: PlayMode[] = [
   { type: "loop", label: "循环" },
@@ -68,6 +69,7 @@ export class WyPlayerComponent implements OnInit {
     private store$: Store<AppStoreModule>,
     @Inject(DOCUMENT) private doc: Document,
     private nzModalService: NzModalService,
+    private batchActionsService: BatchActionsService,
   ) {
 
     // 处理Argument of type '"player"' is not assignable to parameter of type 'never'.
@@ -299,32 +301,13 @@ export class WyPlayerComponent implements OnInit {
     this.nzModalService.confirm({
       nzTitle: '确定清空列表吗？',
       nzOnOk: () => {
-        this.store$.dispatch(SetSongList({songList: []}));
-        this.store$.dispatch(SetPlayList({playList: []}));
-        this.store$.dispatch(SetCurrentIndex({currentIndex: -1}));
+        this.batchActionsService.clearSong();
       }
     })
   }
 
   // 删除歌曲
   onDeleteSong(song: Song) {
-    console.log('onDeleteSong');
-    let songList = this.songList.slice();
-    let playList = this.playList.slice();
-
-    let currentIndex = this.currentIndex;
-    const sIndex = findIndex(songList, song);
-    songList.splice(sIndex, 1);
-    const pIndex = findIndex(playList, song);
-    playList.splice(sIndex, 1);
-
-    if (currentIndex > pIndex || currentIndex === playList.length) {
-      currentIndex--;
-    }
-
-    this.store$.dispatch(SetSongList({ songList }));
-    this.store$.dispatch(SetPlayList({ playList }));
-    this.store$.dispatch(SetCurrentIndex({ currentIndex }));
-
+    this.batchActionsService.deleteSong(song);
   }
 }
