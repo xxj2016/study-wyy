@@ -21,7 +21,9 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   @Input() show: boolean;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onChangeSong = new EventEmitter<void>();
+  @Output() onChangeSong = new EventEmitter<Song>();
+  @Output() onDeleteSong = new EventEmitter<Song>();
+  @Output() onClearSong = new EventEmitter<void>();
 
   @ViewChildren(WyScrollComponent) private wyScroll: QueryList<WyScrollComponent>;
 
@@ -55,13 +57,12 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
     }
 
     if (changes['songList']) {
-      // console.log(this.songList);
-      this.currentIndex = 0;
+      this.updateCurrentIndex();
     }
     if (changes['currentSong']) {
       console.log(this.currentSong);
       if (this.currentSong) {
-        this.currentIndex = findIndex(this.songList, this.currentSong); // 打开面板时，拿当前歌曲列表的当前播放歌曲的索引
+        this.updateCurrentIndex();
         this.updateLyric();
         if (this.show) {
           this.scrollToCurrent();
@@ -96,6 +97,11 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
         // }, 80);
       }
     }
+  }
+
+  // 打开面板时，拿当前歌曲列表的当前播放歌曲的索引
+  updateCurrentIndex() {
+    this.currentIndex = findIndex(this.songList, this.currentSong);
   }
 
   // 更新歌词

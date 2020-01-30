@@ -4,7 +4,7 @@ import { AppStoreModule } from '../../../store/index';
 import { getSongList, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from '../../../store/selectors/player.selector';
 import { Song } from '../../../services/data-types/common.types';
 import { PlayMode } from './player-type';
-import { SetCurrentIndex, SetPlayMode, SetPlayList } from 'src/app/store/actions/player.actions';
+import { SetCurrentIndex, SetPlayMode, SetPlayList, SetSongList } from 'src/app/store/actions/player.actions';
 import { Subscription, fromEvent } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 import { shuffle, findIndex } from 'src/app/utils/array';
@@ -102,10 +102,10 @@ export class WyPlayerComponent implements OnInit {
     if (this.currentSong) {
       const currentTime = this.duration * (per / 100);
       this.audioEl.currentTime = currentTime;
-      if(this.playerPanel) {
+      if (this.playerPanel) {
         this.playerPanel.seekLyric(currentTime * 1000); // *1000是转化成时间戳传进去
       }
-      
+
     }
   }
 
@@ -175,7 +175,7 @@ export class WyPlayerComponent implements OnInit {
         list = shuffle(this.songList);
       }
       this.updateCurrentIndex(list, this.currentSong);
-      this.store$.dispatch(SetPlayList({playList: list}));
+      this.store$.dispatch(SetPlayList({ playList: list }));
     }
   }
 
@@ -190,7 +190,7 @@ export class WyPlayerComponent implements OnInit {
   private updateCurrentIndex(list: Song[], song: Song) {
     const newIndex = findIndex(list, song);
     console.log(newIndex);
-    this.store$.dispatch(SetCurrentIndex({currentIndex: newIndex}));
+    this.store$.dispatch(SetCurrentIndex({ currentIndex: newIndex }));
   }
 
   // 切换播放模式
@@ -302,5 +302,31 @@ export class WyPlayerComponent implements OnInit {
   // 改变歌曲
   onChangeSong(song: Song) {
     this.updateCurrentIndex(this.playList, song);
+  }
+
+  onClearSong() {
+
+  }
+
+  // 删除歌曲
+  onDeleteSong(song: Song) {
+    console.log('onDeleteSong');
+    let songList = this.songList.slice();
+    let playList = this.playList.slice();
+
+    let currentIndex = this.currentIndex;
+    const sIndex = findIndex(songList, song);
+    songList.splice(sIndex, 1);
+    const pIndex = findIndex(playList, song);
+    playList.splice(sIndex, 1);
+
+    if (currentIndex > pIndex || currentIndex === playList.length) {
+      currentIndex--;
+    }
+
+    this.store$.dispatch(SetSongList({ songList }));
+    this.store$.dispatch(SetPlayList({ playList }));
+    this.store$.dispatch(SetCurrentIndex({ currentIndex }));
+
   }
 }
