@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Inject } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { AppStoreModule } from '../../../store/index';
-import { getSongList, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong } from '../../../store/selectors/player.selector';
+import { getSongList, getPlayList, getCurrentIndex, getPlayMode, getCurrentSong, getPlayer } from '../../../store/selectors/player.selector';
 import { Song } from '../../../services/data-types/common.types';
 import { PlayMode } from './player-type';
 import { SetCurrentIndex, SetPlayMode, SetPlayList, SetSongList } from 'src/app/store/actions/player.actions';
@@ -67,27 +67,16 @@ export class WyPlayerComponent implements OnInit {
     private store$: Store<AppStoreModule>,
     @Inject(DOCUMENT) private doc: Document,
   ) {
-    const appStore$ = this.store$.pipe(select('player'));
-    const stateArr = [{
-      type: getSongList,
-      cb: list => this.watchList(list, 'songList')
-    }, {
-      type: getPlayList,
-      cb: list => this.watchList(list, 'playList')
-    }, {
-      type: getCurrentIndex,
-      cb: index => this.watchCurrentIndex(index)
-    }, {
-      type: getPlayMode,
-      cb: mode => this.watchPlayMode(mode)
-    }, {
-      type: getCurrentSong,
-      cb: song => this.watchCurrentSong(song)
-    }];
 
-    stateArr.forEach(item => {
-      appStore$.pipe(select(item.type)).subscribe(item.cb);
-    })
+    // 处理Argument of type '"player"' is not assignable to parameter of type 'never'.
+    const appStore$ = this.store$.pipe(select(getPlayer));
+    appStore$.pipe(select(getSongList)).subscribe(list => this.watchList(list, 'songList'));
+    appStore$.pipe(select(getPlayList)).subscribe(list => this.watchList(list, 'playList'));
+    appStore$.pipe(select(getCurrentIndex)).subscribe(index => this.watchCurrentIndex(index));
+    appStore$.pipe(select(getPlayMode)).subscribe(mode => this.watchPlayMode(mode));
+    appStore$.pipe(select(getCurrentSong)).subscribe(song => this.watchCurrentSong(song));
+    // appStore$.pipe(select(getCurrentAction)).subscribe(action => this.watchCurrentAction(action));
+
 
   }
 

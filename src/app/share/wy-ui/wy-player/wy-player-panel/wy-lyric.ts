@@ -128,7 +128,9 @@ export class WyLyric {
 
         if (this.curNum < this.lines.length) {
             // clearTimeout(this.timer$);
-            this.timer$.closed;
+            // this.timer$.closed;
+            this.clearTimer();
+
             this.playReset();
         }
     }
@@ -179,16 +181,20 @@ export class WyLyric {
 
     }
 
+    private clearTimer() {
+        this.timer$ && this.timer$.unsubscribe();
+    }
+
     // 停止播放歌词
     stop() {
         if (this.playing) {
             this.playing = false;
         }
-        clearTimeout(this.timer);
+        // clearTimeout(this.timer);
+        this.clearTimer();
     }
 
     seek(time: number) {
-        console.log('1212121212');
         this.play(time);
     }
 }

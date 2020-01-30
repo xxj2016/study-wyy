@@ -3,7 +3,7 @@ import BScroll from "@better-scroll/core";
 import { Song } from 'src/app/services/data-types/common.types';
 import ScrollBar from '@better-scroll/scroll-bar'
 import MouseWheel from '@better-scroll/mouse-wheel'
-import { WINDOW } from 'src/app/services/services.module';
+// import { WINDOW } from 'src/app/services/services.module';
 import { timer } from 'rxjs';
 BScroll.use(MouseWheel)
 BScroll.use(ScrollBar)
@@ -27,7 +27,7 @@ export class WyScrollComponent implements OnInit {
   @Output() private onScrollEnd = new EventEmitter<number>();
   constructor(
     readonly el: ElementRef,
-    @Inject(WINDOW) private win: Window
+    // @Inject(WINDOW) private win: Window
   ) { }
 
   ngOnInit() {

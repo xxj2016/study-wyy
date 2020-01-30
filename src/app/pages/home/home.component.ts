@@ -9,6 +9,7 @@ import { AppStoreModule } from '../../store/index';
 import { SetSongList, SetPlayList, SetCurrentIndex } from '../../store/actions/player.actions';
 import { PlayState } from 'src/app/store/reducers/player.reducer';
 import { shuffle, findIndex } from 'src/app/utils/array';
+import { getPlayer } from 'src/app/store/selectors/player.selector';
 
 @Component({
   selector: 'app-home',
@@ -38,7 +39,7 @@ export class HomeComponent implements OnInit {
       this.singers = singers;
     });
 
-    this.store$.pipe(select('player')).subscribe(res => this.playState = res);
+    this.store$.pipe(select(getPlayer)).subscribe(res => this.playState = res);
   }
 
   ngOnInit() {

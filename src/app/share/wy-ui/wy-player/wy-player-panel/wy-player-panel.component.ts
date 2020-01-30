@@ -2,7 +2,7 @@ import { Component, OnInit, Input, SimpleChanges, OnChanges, Output, EventEmitte
 import { Song } from 'src/app/services/data-types/common.types';
 import { WyScrollComponent } from '../wy-scroll/wy-scroll.component';
 import { findIndex } from 'src/app/utils/array';
-import { WINDOW } from 'src/app/services/services.module';
+// import { WINDOW } from 'src/app/services/services.module';
 import { timer, from } from 'rxjs';
 import { SongService } from 'src/app/services/song.service';
 import { WyLyric, BaseLyricLine } from './wy-lyric';
@@ -38,7 +38,7 @@ export class WyPlayerPanelComponent implements OnInit, OnChanges {
   private lyricRefs: NodeList;
 
   constructor(
-    @Inject(WINDOW) private win: Window,
+    // @Inject(WINDOW) private win: Window,
     private songService: SongService,
   ) { }
 
