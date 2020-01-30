@@ -9,6 +9,7 @@ import { Subscription, fromEvent } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 import { shuffle, findIndex } from 'src/app/utils/array';
 import { WyPlayerPanelComponent } from './wy-player-panel/wy-player-panel.component';
+import { NzModalService } from 'ng-zorro-antd';
 
 const modeTypes: PlayMode[] = [
   { type: "loop", label: "循环" },
@@ -66,6 +67,7 @@ export class WyPlayerComponent implements OnInit {
   constructor(
     private store$: Store<AppStoreModule>,
     @Inject(DOCUMENT) private doc: Document,
+    private nzModalService: NzModalService,
   ) {
 
     // 处理Argument of type '"player"' is not assignable to parameter of type 'never'.
@@ -294,7 +296,14 @@ export class WyPlayerComponent implements OnInit {
   }
 
   onClearSong() {
-
+    this.nzModalService.confirm({
+      nzTitle: '确定清空列表吗？',
+      nzOnOk: () => {
+        this.store$.dispatch(SetSongList({songList: []}));
+        this.store$.dispatch(SetPlayList({playList: []}));
+        this.store$.dispatch(SetCurrentIndex({currentIndex: -1}));
+      }
+    })
   }
 
   // 删除歌曲
